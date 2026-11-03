@@ -40,7 +40,7 @@ formOperation.addEventListener("submit",function(e){
         operationdateerreur.textContent="Date Invalide";
         operationdateerreur.classList.remove("hidden")
     }
-    
+
     if (!validemontant || !valideDate) {
     return;
 }
@@ -50,7 +50,7 @@ formOperation.addEventListener("submit",function(e){
 function validerMontant(){
     const regexMontant = /^\d+([.,]\d{1,2})?$/;
     const valeur = inputMontant.value.trim();
-    const valeurNormalisee = valeur.replace(",", ".");
+    const  valeurNormalisee = valeur.replace(",", ".");
 
     if (!regexMontant.test(valeur)) {
         return false;
@@ -78,5 +78,7 @@ function validerDate(){
     }
     return true
 }
+
+
 
 
