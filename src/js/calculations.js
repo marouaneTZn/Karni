@@ -3,20 +3,21 @@ import { creerDemo } from "./demo.js";
 const data = creerDemo();
 
 
+
 export function calculerSolde(clientId, operations) {
     const operationsClient = operations.filter((operation) => {
         return operation.clientId === clientId;
     });
+    
+    
 
-    console.log(operationsClient.nom)
-
-    const solde = operationsClient.reduce((total, operation) => {
-        if (operation.type === "achat") {
-            return total + operation.montant;
+    const solde = operationsClient.reduce((total, operations) => {
+        if (operations.type === "achat") {
+            return total + operations.montant;
         }
 
-        if (operation.type === "remboursement") {
-            return total - operation.montant;
+        if (operations.type === "remboursement") {
+            return total - operations.montant;
         }
 
         return total;
@@ -30,6 +31,30 @@ export function calculerSolde(clientId, operations) {
 
 export function calculerStatut(clientId, operations){
     const solde = calculerSolde(clientId, operations)
+    const remboursement = operations.filter((operation) => {
+        return operation.clientId === clientId && 
+        operation.type === "remboursement"
+    })
+
+    const dernierRemboursement = remboursement.sort((a, b) => {
+        return b.date.localeCompare(a.date);
+    })[0];
+
+    const achats = operations.filter((operation) => {
+        return operation.clientId === clientId &&
+           operation.type === "achat";
+    });
+
+    const premierAchat = achats.sort((a, b) => {
+        return a.date.localeCompare(b.date);
+    })[0];
+
+    console.log("Premier achat:", premierAchat);
+
+    console.log("Dernier remboursement:", dernierRemboursement);
+    console.log("remboursement", remboursement)
+
+
     if(solde === 0){
         return "À jour"
     }
@@ -38,5 +63,6 @@ export function calculerStatut(clientId, operations){
     }
 }
 
-console.log("Solde:  ", calculerSolde("c-demo-6", data.operations));
-console.log(calculerStatut("c-demo-6", data.operations));
+console.log("Solde:  ", calculerSolde("c-demo-1", data.operations));
+
+console.log("this is : ",calculerStatut("c-demo-1", data.operations));
