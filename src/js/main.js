@@ -3,3 +3,4 @@
 // (state.js, storage.js, validation.js, calculs.js, ui.js) que tu importes ici.
 
 import"./operations.js"; 
+import "./calculations.js";
