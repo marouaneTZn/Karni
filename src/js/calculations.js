@@ -2,22 +2,18 @@ import { creerDemo } from "./demo.js";
 
 const data = creerDemo();
 
-
-
 export function calculerSolde(clientId, operations) {
     const operationsClient = operations.filter((operation) => {
         return operation.clientId === clientId;
     });
-    
-    
 
-    const solde = operationsClient.reduce((total, operations) => {
-        if (operations.type === "achat") {
-            return total + operations.montant;
+    const solde = operationsClient.reduce((total, operation) => {
+        if (operation.type === "achat") {
+            return total + operation.montant;
         }
 
-        if (operations.type === "remboursement") {
-            return total - operations.montant;
+        if (operation.type === "remboursement") {
+            return total - operation.montant;
         }
 
         return total;
@@ -26,43 +22,56 @@ export function calculerSolde(clientId, operations) {
     return solde;
 }
 
+export function calculerStatut(clientId, operations) {
+    const solde = calculerSolde(clientId, operations);
 
+    const remboursements = operations.filter((operation) => {
+        return operation.clientId === clientId &&
+               operation.type === "remboursement";
+    });
 
-
-export function calculerStatut(clientId, operations){
-    const solde = calculerSolde(clientId, operations)
-    const remboursement = operations.filter((operation) => {
-        return operation.clientId === clientId && 
-        operation.type === "remboursement"
-    })
-
-    const dernierRemboursement = remboursement.sort((a, b) => {
+    const dernierRemboursement = remboursements.sort((a, b) => {
         return b.date.localeCompare(a.date);
     })[0];
 
     const achats = operations.filter((operation) => {
         return operation.clientId === clientId &&
-           operation.type === "achat";
+               operation.type === "achat";
     });
 
     const premierAchat = achats.sort((a, b) => {
         return a.date.localeCompare(b.date);
     })[0];
 
-    console.log("Premier achat:", premierAchat);
+    let dateReference;
 
-    console.log("Dernier remboursement:", dernierRemboursement);
-    console.log("remboursement", remboursement)
-
-
-    if(solde === 0){
-        return "À jour"
+    if (dernierRemboursement) {
+        dateReference = dernierRemboursement.date;
+    } else {
+        dateReference = premierAchat?.date;
     }
-    else if(solde > 0){
-        return "En dette"
+
+    console.log("Date de référence:", dateReference);
+
+    if (dateReference) {
+    
+    const aujourdHui = new Date();
+    const dateOperation = new Date(dateReference);
+
+    const difference = aujourdHui - dateOperation;
+
+    const nombreJours = Math.floor(
+        difference / (1000 * 60 * 60 * 24)
+    );
+
+        console.log("Nombre de jours:", nombreJours);
+    }
+    if (solde === 0) {
+        return "À jour";
+    } else if (solde > 0) {
+        return "En dette";
     }
 }
 
-console.log("Solde:  ", calculerSolde("c-demo-1", data.operations));
-
-console.log("this is : ",calculerStatut("c-demo-1", data.operations));
+console.log("Solde:", calculerSolde("c-demo-1", data.operations));
+console.log("Statut:", calculerStatut("c-demo-1", data.operations));
