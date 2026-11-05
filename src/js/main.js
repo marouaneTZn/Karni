@@ -4,6 +4,4 @@
 
 import "./operations.js";
 
-const fiche = document.getElementById("fiche-client");
-fiche.showModal();
 
