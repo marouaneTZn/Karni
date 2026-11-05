@@ -53,25 +53,37 @@ export function calculerStatut(clientId, operations) {
 
     console.log("Date de référence:", dateReference);
 
+    let nombreJours = 0;
+
     if (dateReference) {
-    
-    const aujourdHui = new Date();
-    const dateOperation = new Date(dateReference);
+        const aujourdHui = new Date();
+        const dateOperation = new Date(dateReference);
 
-    const difference = aujourdHui - dateOperation;
+        const difference = aujourdHui - dateOperation;
 
-    const nombreJours = Math.floor(
-        difference / (1000 * 60 * 60 * 24)
-    );
-
-        console.log("Nombre de jours:", nombreJours);
+        nombreJours = Math.floor(
+            difference / (1000 * 60 * 60 * 24)
+        );
     }
+
+
+
     if (solde === 0) {
         return "À jour";
-    } else if (solde > 0) {
+    }
+
+    else if (solde > 0 && nombreJours > 30){
+        return "En retard"
+    }
+    
+    else if (solde > 0) {
         return "En dette";
     }
 }
+
+console.log(calculerStatut("c-demo-1", data.operations));
+console.log(calculerStatut("c-demo-2", data.operations));
+console.log(calculerStatut("c-demo-3", data.operations));
 
 console.log("Solde:", calculerSolde("c-demo-1", data.operations));
 console.log("Statut:", calculerStatut("c-demo-1", data.operations));
