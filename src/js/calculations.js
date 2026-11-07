@@ -1,5 +1,10 @@
 import { creerDemo } from "./demo.js";
 
+const totalDuElement = document.getElementById("total-du");
+const nbClientsElement = document.getElementById("nb-clients");
+const nbEnDetteElement = document.getElementById("nb-en-dette");
+const nbEnRetardElement = document.getElementById("nb-en-retard");
+
 const data = creerDemo();
 
 export function calculerSolde(clientId, operations) {
@@ -81,9 +86,57 @@ export function calculerStatut(clientId, operations) {
     }
 }
 
-console.log(calculerStatut("c-demo-1", data.operations));
-console.log(calculerStatut("c-demo-2", data.operations));
-console.log(calculerStatut("c-demo-3", data.operations));
+export function plafondAtteint(client, operations) {
+    const solde = calculerSolde(client.id, operations);
+    return solde >= client.plafond;
+}
 
-console.log("Solde:", calculerSolde("c-demo-1", data.operations));
-console.log("Statut:", calculerStatut("c-demo-1", data.operations));
+const client = data.clients.find((client) => {
+    return client.id === "c-demo-4";
+});
+
+
+export function calculerTableauBord(clients, operations) {
+    const nbClients = clients.length
+
+
+    const  clientEnDette = clients.filter((client) => {
+        return calculerSolde(client.id, operations) 
+    })
+    const nbEnDette = clientEnDette.length
+
+    const clientsEnRetard = clients.filter((client) => {
+        return calculerStatut(client.id, operations) === "En retard"
+    })
+    const nbEnRetard = clientsEnRetard.length
+
+    const totalDu = clients.reduce((total, client) => {
+        return total + calculerSolde(client.id, operations)
+    },0)
+    
+    return {
+        nbClients,
+        nbEnDette,
+        nbEnRetard,
+        totalDu
+    } 
+}
+
+
+
+
+
+console.log("Solde:", calculerSolde(client.id, data.operations));
+console.log("Statut:", calculerStatut(client.id, data.operations));
+console.log("Plafond atteint:", plafondAtteint(client, data.operations));
+
+
+console.log(calculerTableauBord(data.clients, data.operations));
+
+
+/*
+    totalDu: 0,
+    nbClients: 0,
+    nbEnDette: 0,
+    nbEnRetard: 0
+*/
