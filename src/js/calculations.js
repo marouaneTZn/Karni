@@ -1,9 +1,6 @@
 import { creerDemo } from "./demo.js";
 
-const totalDuElement = document.getElementById("total-du");
-const nbClientsElement = document.getElementById("nb-clients");
-const nbEnDetteElement = document.getElementById("nb-en-dette");
-const nbEnRetardElement = document.getElementById("nb-en-retard");
+
 
 const data = creerDemo();
 
@@ -101,7 +98,7 @@ export function calculerTableauBord(clients, operations) {
 
 
     const  clientEnDette = clients.filter((client) => {
-        return calculerSolde(client.id, operations) 
+        return calculerSolde(client.id, operations) > 0; 
     })
     const nbEnDette = clientEnDette.length
 

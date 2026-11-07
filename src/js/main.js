@@ -6,8 +6,6 @@
 import "./operations.js";
 import "./calculations.js";
 
-import "./operations.js";
-import "./calculations.js";
 
 import { creerDemo } from "./demo.js";
 import { afficherTableauBord } from "./render.js";
