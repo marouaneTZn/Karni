@@ -2,7 +2,8 @@ import { operations } from "./state.js";
 import { creerDemo } from "./demo.js";
 
 const demo = creerDemo();
-const clientId = demo.clients[4].id;
+const clientId = demo.clients[0].id;
+
 
 
 
@@ -30,6 +31,15 @@ const titrehistorique = document.getElementById("titre-historique")
 const historiquevide = document.getElementById("historique-vide")
 const historique =document.getElementById("historique")
 const modeleOperation = document.getElementById("modele-operation")
+
+const notification = document.getElementById("notification"); 
+
+const dialogconfirmation = document.getElementById("dialog-confirmation");
+const confirmationtitre = document.getElementById("confirmation-titre");
+const confirmationmessage = document.getElementById("confirmation-message");
+const confirmationdetails = document.getElementById("confirmation-details");
+const confirmationvalider = document.getElementById("confirmation-valider");
+const fichefermer = document.getElementById("fiche-fermer");
 
 
 
@@ -94,8 +104,15 @@ const montantCentimes = convertCentime()
 
 
 const typeOperation = formOperation.querySelector('input[name="operation-type"]:checked').value;
+const { solde, creditdisponible } = actualiserFiche();
+
 const libelle = inputlibelle.value.trim();
 const date = dateOperation.value;
+
+notification.textContent = "";
+if (!verifierOperation(typeOperation, montantCentimes, solde, creditdisponible)) {
+    return;
+}
 
 const Operation = creerOperation (clientId,typeOperation,montantCentimes,libelle,date) 
 operations.push(Operation);
@@ -180,25 +197,33 @@ function creerOperation(clientId, typeOperation, montantCentimes, libelle, date)
 export function afficherOperation(operation) {
     const copie = modeleOperation.content.cloneNode(true);
     const ligne = copie.querySelector("li");
+
     ligne.dataset.operationId = operation.id;
 
-    const elementLibelle = ligne.querySelector(".operation-libelle");
-    elementLibelle.textContent= operation.libelle;
+    ligne.querySelector(".operation-libelle").textContent = operation.libelle;
+    ligne.querySelector(".operation-date").textContent = operation.date;
+    ligne.querySelector(".operation-montant").textContent = (operation.montant / 100).toFixed(2) + " DH";
 
-    const elementDate = ligne.querySelector(".operation-date");
-    elementDate.textContent=operation.date;
-
-    const elementMontant = ligne.querySelector(".operation-montant")
-    elementMontant.textContent=(operation.montant / 100 ).toFixed(2)+" DH ";
-
-    if (operation.type === "achat"){
+    if (operation.type === "achat") {
         ligne.classList.add("operation-achat");
-    }else{
+    } else {
         ligne.classList.add("operation-remboursement");
     }
 
-    historique.appendChild(copie)
+    historique.appendChild(copie);
 
+    const lignes = Array.from(historique.children);
+
+    lignes.sort(function(a, b) {
+        const dateA = a.querySelector(".operation-date").textContent;
+        const dateB = b.querySelector(".operation-date").textContent;
+
+        return dateB.localeCompare(dateA);
+    });
+
+    lignes.forEach(function(ligne) {
+        historique.appendChild(ligne);
+    });
 }
 
 
@@ -246,6 +271,63 @@ function actualiserFiche() {
     let creditDispo = (plaf - solde) / 100;
     fichedisponible.textContent = creditDispo.toFixed(2) + " DH";
 
+    return {
+        solde,
+        creditdisponible:creditDispo
+    }
+    
 
 }
 actualiserFiche();
+
+
+function verifierOperation(typeOperation,montantCentimes,solde,creditdisponible){
+
+    if( typeOperation === "achat" && montantCentimes/100 > creditdisponible){
+    notification.textContent = `Erreur : le montant dépasse le crédit disponible (${creditdisponible.toFixed(2)} DH).`;
+    return false
+    }
+    if(typeOperation ==="remboursement" && montantCentimes/100 > solde/100){
+        notification.textContent = `Erreur : le remboursement depasse le solde actuel (${(solde / 100).toFixed(2)} DH).`;
+            return false
+    }
+    return true
+}
+
+    let operationId  ;
+historique.addEventListener("click",function(e){
+    if(e.target.matches('[data-action="supprimer-operation"]')){
+        const ligne= e.target.closest("li")
+        operationId = ligne.dataset.operationId;   
+        const resultat = operations.find(function(operation) {
+        return operation.id === operationId ;
+        
+        
+}); 
+    confirmationtitre.textContent="Confirmer la suppression"
+    confirmationmessage.textContent = "Êtes-vous sûr de vouloir supprimer cette opération ?";
+    confirmationdetails.textContent=resultat.libelle+", "+resultat.montant/100 +" DH"
+    dialogconfirmation.showModal();
+    }
+    
+
+})
+
+confirmationvalider.addEventListener("click",function(e){
+const resultat = operations.findIndex(function(operation){
+return operation.id === operationId;
+})
+if(resultat>=0){
+    operations.splice(resultat, 1);
+    const ligne = historique.querySelector(`[data-operation-id="${operationId}"]`);
+    ligne.remove();
+    actualiserFiche();
+    
+}
+
+})
+
+fichefermer.addEventListener("click", function() {
+    ficheclient.close();
+});
+
