@@ -1,17 +1,22 @@
-import { calculerTableauBord } from "./calculations.js";
 
-const totalDuElement = document.getElementById("total-du");
-const nbClientsElement = document.getElementById("nb-clients");
-const nbEnDetteElement = document.getElementById("nb-en-dette");
-const nbEnRetardElement = document.getElementById("nb-en-retard");
+export function afficherClients(clients) {
+  const liste = document.querySelector('#liste-clients');
+  const etatVide = document.querySelector('#etat-vide');
+  const modele = document.querySelector('#modele-client');
+  liste.replaceChildren();
+  etatVide.classList.toggle('hidden', clients.length > 0);
 
-export function afficherTableauBord(clients, operations) {
-    const stats = calculerTableauBord(clients, operations);
-
-    totalDuElement.textContent = (stats.totalDu / 100).toFixed(2) + " MAD";
-    nbClientsElement.textContent = stats.nbClients;
-    nbEnDetteElement.textContent = stats.nbEnDette;
-    nbEnRetardElement.textContent = stats.nbEnRetard;
+  for (const client of [...clients].sort((a, b) => a.nom.localeCompare(b.nom, 'fr'))) {
+    const fragment = modele.content.cloneNode(true);
+    const ligne = fragment.querySelector('li');
+    ligne.dataset.clientId = client.id;
+    fragment.querySelector('.client-nom').textContent = client.nom;
+    fragment.querySelector('.client-telephone').textContent = client.telephone || 'Aucun téléphone';
+    fragment.querySelector('.client-solde').textContent = '';
+    fragment.querySelector('.client-badges').replaceChildren();
+    fragment.querySelectorAll('.nom-sr').forEach(element => {
+      element.textContent = ` ${client.nom}`;
+    });
+    liste.append(fragment);
+  }
 }
-
-

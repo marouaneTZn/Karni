@@ -1,3 +1,1 @@
-
-export const operations=[];
-
+export const state = { clients: [] };
